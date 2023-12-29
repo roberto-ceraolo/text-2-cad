@@ -1,0 +1,142 @@
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            }
+            #inputText {
+                padding: 10px;
+                width: 300px;
+                margin-bottom: 20px;
+            }
+            #toggleRag {
+                margin-left: 10px;
+            }
+            #submitButton {
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+            #resetButton {
+                padding: 10px 20px;
+                background-color: #f44336;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+                margin-left: 10px;
+            }
+            #submitButton:hover {
+                background-color: #45a049;
+            }
+            #resetButton:hover {
+                background-color: #d22e19;
+            }
+            #imageArea {
+                margin-top: 30px;
+            }
+            img {
+                max-width: 100%;
+                height: auto;
+            }    
+                #loadingIndicator {
+                    display: none;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    color: white;
+                    text-align: center;
+                    line-height: 100vh;
+                }
+            </style>
+</head>
+<body>
+    <div>
+        <h1>LLM to CAD - naive implementation</h1>
+        <p>Enter text and click submit to generate a CAD model. Enabling Retrieval Augmented Generation (RAG), the query is augmented with the documentation of the scripting language</p>
+    </div>
+    <div>
+        <input type="text" id="inputText" placeholder="A sphere">
+    </div>
+    <div>
+        <label for="toggleRag">Activate RAG:</label>
+        <input type="checkbox" id="toggleRag">
+    </div>
+    <div>
+        <button id="submitButton">Enter</button>
+        <button id="resetButton">Reset</button>
+    </div>
+    <div> 
+        <br>
+        <br>
+        <a id="downloadLink" href="" style="display: none; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none;">Download SCAD file</a>
+    </div>
+    <div id="imageArea">
+        <p id="generatedText" style="display: none;">The following is a 2D preview of the generated model. Download the SCAD code and render it on OpenSCAD to get the 3D model.</p>
+        <img src="" alt="Generated Image" id="generatedImage" style="display: none;">
+    </div>
+
+
+    <div id="loadingIndicator">Loading...</div>
+
+    <script>
+        $(document).ready(function() {
+            $('#submitButton').click(function() {
+                var text = $('#inputText').val();
+                var toggleRag = $('#toggleRag').is(':checked') ? 'on' : 'off';
+
+                // Show loading indicator
+                $('#loadingIndicator').show();
+                $('#generatedImage').hide();
+                $('#generatedText').hide();
+                $('#downloadLink').hide();
+
+                $.post('/submit', { text: text, toggleRag: toggleRag }, function(response) {
+                    var imageUrl = "{{ url_for('static', filename='images/') }}" + response.image;
+                    $('#generatedImage').attr('src', imageUrl).show();
+                    $('#downloadButton').show();
+                    $('#generatedText').show();
+                    // Set the download link's href attribute and show it
+                    $('#downloadLink').attr('href', `/download/${response.filename}`).show();
+
+
+
+                    // Hide loading indicator
+                    $('#loadingIndicator').hide(); 
+                });
+            });
+
+            $('#resetButton').click(function() {
+                $('#inputText').val('');
+                $('#generatedImage').hide();
+                $('#downloadLink').hide();
+                $('#loadingIndicator').hide();
+                $('#generatedText').hide();
+                $('#toggleRag').prop('checked', false);
+            });
+        });
+    </script>
+</body>
+</html>

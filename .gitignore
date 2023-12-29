@@ -5,3 +5,4 @@ scad_scripts/*.scad
 static/images/*.png
 static/images/*.gif
 
+.env
