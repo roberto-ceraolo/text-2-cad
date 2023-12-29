@@ -1,0 +1,7 @@
+# Ignore .scad files in scad_scripts folder
+scad_scripts/*.scad
+
+# Ignore .png and .gif files in static/images folder
+static/images/*.png
+static/images/*.gif
+
